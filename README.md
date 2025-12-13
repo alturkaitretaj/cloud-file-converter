@@ -68,7 +68,7 @@ sudo apt update
 sudo apt install pandoc libreoffice python3-venv -y
 
 ### 2. Application Setup
-```bash
+
 git clone <your-repository-url>
 cd scripts
 python3 -m venv venv
