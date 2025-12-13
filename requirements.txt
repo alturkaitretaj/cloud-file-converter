@@ -1,0 +1,6 @@
+flask
+boto3
+pypandoc
+pdf2docx
+PyMuPDF
+python-docx
