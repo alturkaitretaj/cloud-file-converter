@@ -63,7 +63,7 @@ JavaScript is used to send files to the backend and handle responses without rel
 - Open port **5000** in the EC2 security group
 - Install required system dependencies:
 
-```bash
+
 sudo apt update
 sudo apt install pandoc libreoffice python3-venv -y
 
@@ -77,8 +77,10 @@ pip install -r requirements.txt
 
 
 ### 3. Run the Application
-```bash
+
 python3 docxconverter_app.py
+
+
 ---
 ### 4. Sample Output
 The screenshots/ directory contains sample outputs of the running application, including:
