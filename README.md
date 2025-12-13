@@ -79,25 +79,25 @@ pip install -r requirements.txt
 ### 3. Run the Application
 ```bash
 python3 docxconverter_app.py
-
+---
 ### 4. Sample Output
 The screenshots/ directory contains sample outputs of the running application, including:
 Web interface home page
 DOCX → PDF conversion result
 PDF → DOCX conversion result
-
+---
 ### 5. Security Configuration
 IAM roles are used instead of AWS access keys.
 S3 buckets are configured as private with no public access.
 EC2 security group allows inbound traffic only on port 5000.
 SSH access is restricted to the developer’s IP.
 Presigned URLs are used for secure temporary file access.
-
+---
 ### 5. Limitations
 PDF to DOCX conversion may not fully preserve complex layouts.
 Scanned PDFs require OCR, which is not implemented.
 The system is intended for academic demonstration purposes.
-
+---
 ### 6. AWS Deployment and Security Notes
 EC2 security groups restrict inbound traffic to port 5000 only.
 IAM roles are used instead of embedding AWS credentials in code.
