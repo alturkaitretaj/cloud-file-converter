@@ -1,9 +1,8 @@
 
 # Cloud File Converter (DOCX ↔ PDF)
 
-A simple cloud-based web application that converts files between **DOCX** and **PDF** formats using **Python Flask** and **AWS services**.
+A simple cloud-based web application that converts files between DOCX and PDF formats using Python Flask and AWS services.
 
-This project was developed as part of **CpE-402: Cloud Computing** at **Kuwait University**.
 
 ---
 
