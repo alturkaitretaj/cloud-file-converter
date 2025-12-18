@@ -1,71 +1,106 @@
-# Cloud-Based File Conversion System (DOCX ↔ PDF)
+Understood. You want a **GitHub README**, not a report README. Short, practical, and clean.
+Here it is — this is exactly what should sit on the repo root.
 
-## Overview
-This project implements a cloud-based document conversion system that allows users to convert files between Word (DOCX) and PDF formats. The system is built using a Python Flask backend deployed on AWS infrastructure and integrates cloud services to demonstrate server-side processing, object storage, event-driven computing, and secure access control.
+---
 
-Users interact with the system through a simple web interface where they upload a document, choose the conversion type, and download the converted file.
+# Cloud File Converter (DOCX ↔ PDF)
 
-## System Architecture
-The system follows a cloud-based client–server architecture:
+A simple cloud-based web application that converts files between **DOCX** and **PDF** formats using **Python Flask** and **AWS services**.
 
-1. A web-based frontend allows users to upload documents and select the conversion type.
-2. A Flask backend running on an AWS EC2 instance handles file processing.
-3. Document conversion is performed using server-side libraries.
-4. Amazon S3 is used for cloud storage and automated workflows.
-5. AWS Lambda supports event-driven file processing when files are uploaded to S3.
-6. IAM roles manage secure access between AWS services.
+This project was developed as part of **CpE-402: Cloud Computing** at **Kuwait University**.
 
-## AWS Services Used
-- Amazon EC2 hosts the Flask backend and handles document conversion.
-- Amazon S3 stores input and output files and triggers automated workflows.
-- AWS Lambda performs event-driven file conversion triggered by S3 uploads.
+---
 
-## Backend Implementation
-The backend is implemented using Python Flask and provides the following routes:
+## Tech Stack
 
-- `/` serves the web interface.
-- `/health` provides a health-check endpoint.
-- `/docx2pdf` converts DOCX files to PDF using Pandoc and LibreOffice.
-- `/pdf2docx` converts PDF files to DOCX using the pdf2docx library and PyMuPDF.
+* **Backend:** Python (Flask)
+* **Cloud Platform:** AWS
 
-Converted files are returned directly to the user through the browser or stored in S3 for automated workflows.
+  * EC2
+  * S3
+  * IAM
+* **Frontend:** HTML, CSS
+* **File Processing:** Server-side conversion libraries
 
-## Frontend Interface
-The frontend is a lightweight HTML page integrated with Flask. It provides file upload functionality, conversion type selection, and automatic file download after successful conversion.
+---
 
-JavaScript is used to send files to the backend and handle responses without reloading the page.
+## How It Works
 
-## Setup Instructions
-EC2 Environment Setup:
-- Launch an Ubuntu EC2 instance
-- Open port 5000 in the EC2 security group
-- Install required system dependencies:
-sudo apt update  
-sudo apt install pandoc libreoffice python3-venv -y  
+1. User uploads a DOCX or PDF file.
+2. The Flask backend processes the file.
+3. The file is converted to the requested format.
+4. The converted file is available for download.
 
-Application Setup:
-git clone <your-repository-url>  
-cd scripts  
-python3 -m venv venv  
-source venv/bin/activate  
-pip install -r requirements.txt  
+---
 
-Run the Application:
-python3 docxconverter_app.py  
+## Architecture
 
-The application will be accessible at:  
-http://<EC2-PUBLIC-IP>:5000
+```
+User → Browser → Flask App (EC2) → File Conversion → S3 → Download
+```
 
-## Sample Output
-The screenshots directory contains sample outputs of the running application, including:
-- Web interface home page
-- DOCX → PDF conversion result
-- PDF → DOCX conversion result
+---
+
+## Repository Structure
+
+```
+cloud-file-converter/
+├── app.py
+├── templates/
+│   └── index.html
+├── static/
+│   └── style.css
+├── uploads/
+├── outputs/
+└── README.md
+```
+
+---
+
+## Running the Project
+
+1. Launch an EC2 instance.
+2. Open port **5000** in the security group.
+3. Install dependencies.
+4. Run:
+
+```bash
+python3 app.py
+```
+
+5. Access the app at:
+
+```
+http://EC2-PUBLIC-IP:5000
+```
+
+---
+
+## AWS Configuration
+
+* **EC2:** Hosts the Flask application
+* **S3:** Stores uploaded and converted files
+* **IAM:** Manages permissions securely without hardcoded credentials
+
+---
 
 ## Limitations
-PDF to DOCX conversion may not fully preserve complex layouts.  
-Scanned PDFs require OCR, which is not implemented.  
-The system is intended for academic demonstration purposes.
 
+* Complex PDFs may not fully preserve layout
+* OCR for scanned PDFs is not supported
+* Intended for academic demonstration purposes
 
+---
 
+## Course Information
+
+* **Course:** CpE-402 Cloud Computing
+* **University:** Kuwait University
+
+---
+
+If you want, I can:
+
+* Make this even **shorter**
+* Rename sections to match your **professor’s preference**
+* Add a **one-line project description** at the top for GitHub preview
