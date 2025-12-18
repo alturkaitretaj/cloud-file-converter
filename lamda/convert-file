@@ -1,0 +1,91 @@
+import os
+import json
+import subprocess
+import tempfile
+import boto3
+
+s3 = boto3.client("s3")
+
+OUTPUT_BUCKET = os.environ["OUTPUT_BUCKET"]
+
+def presign(bucket, key, exp=3600):
+    return s3.generate_presigned_url(
+        "get_object",
+        Params={"Bucket": bucket, "Key": key},
+        ExpiresIn=exp
+    )
+
+def run(cmd):
+    p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    if p.returncode != 0:
+        raise RuntimeError(f"Command failed: {' '.join(cmd)}\nSTDOUT:\n{p.stdout}\nSTDERR:\n{p.stderr}")
+    return p.stdout
+
+def convert_docx_to_pdf(input_path, out_dir):
+    # LibreOffice headless conversion
+    run(["libreoffice", "--headless", "--nologo", "--nofirststartwizard",
+         "--convert-to", "pdf", "--outdir", out_dir, input_path])
+    base = os.path.splitext(os.path.basename(input_path))[0]
+    return os.path.join(out_dir, base + ".pdf")
+
+def convert_pdf_to_docx(input_path, out_path):
+    # pdf2docx conversion (best effort)
+    from pdf2docx import Converter
+    cv = Converter(input_path)
+    try:
+        cv.convert(out_path, start=0, end=None)
+    finally:
+        cv.close()
+    return out_path
+
+def lambda_handler(event, context):
+    # supports S3 trigger OR manual test: {"bucket": "...", "key": "..."}
+    records = event.get("Records")
+    if not records:
+        bucket = event.get("bucket")
+        key = event.get("key")
+        if not bucket or not key:
+            return {"statusCode": 400, "body": json.dumps({"error": "Provide S3 event Records OR {bucket,key}"})}
+        records = [{"s3": {"bucket": {"name": bucket}, "object": {"key": key}}}]
+
+    results = []
+
+    for r in records:
+        src_bucket = r["s3"]["bucket"]["name"]
+        src_key = r["s3"]["object"]["key"]
+
+        ext = os.path.splitext(src_key.lower())[1]  # ".pdf" or ".docx"
+        if ext not in [".pdf", ".docx"]:
+            results.append({"file": src_key, "status": "failed", "reason": "Only .pdf and .docx supported"})
+            continue
+
+        with tempfile.TemporaryDirectory() as d:
+            in_path = os.path.join(d, os.path.basename(src_key))
+            s3.download_file(src_bucket, src_key, in_path)
+
+            base = os.path.splitext(os.path.basename(src_key))[0]
+
+            if ext == ".docx":
+                out_path = convert_docx_to_pdf(in_path, d)
+                out_key = f"outputs/{base}.pdf"
+                content_type = "application/pdf"
+            else:
+                out_path = os.path.join(d, base + ".docx")
+                out_path = convert_pdf_to_docx(in_path, out_path)
+                out_key = f"outputs/{base}.docx"
+                content_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
+            s3.upload_file(out_path, OUTPUT_BUCKET, out_key, ExtraArgs={"ContentType": content_type})
+
+            results.append({
+                "file": src_key,
+                "status": "ok",
+                "output_key": out_key,
+                "download_url": presign(OUTPUT_BUCKET, out_key)
+            })
+
+    return {
+        "statusCode": 200,
+        "headers": {"Content-Type": "application/json"},
+        "body": json.dumps(results)
+    }
