@@ -1,13 +1,10 @@
-Understood. You want a **GitHub README**, not a report README. Short, practical, and clean.
-Here it is — this is exactly what should sit on the repo root.
 
----
 
 # Cloud File Converter (DOCX ↔ PDF)
 
-A simple cloud-based web application that converts files between **DOCX** and **PDF** formats using **Python Flask** and **AWS services**.
+A cloud-based web application that converts files between **DOCX** and **PDF** formats using **Python Flask** and **AWS EC2**.
 
-This project was developed as part of **CpE-402: Cloud Computing** at **Kuwait University**.
+This project was developed for **CpE-402: Cloud Computing** at **Kuwait University**.
 
 ---
 
@@ -18,7 +15,6 @@ This project was developed as part of **CpE-402: Cloud Computing** at **Kuwait U
 
   * EC2
   * S3
-  * IAM
 * **Frontend:** HTML, CSS
 * **File Processing:** Server-side conversion libraries
 
@@ -26,10 +22,10 @@ This project was developed as part of **CpE-402: Cloud Computing** at **Kuwait U
 
 ## How It Works
 
-1. User uploads a DOCX or PDF file.
-2. The Flask backend processes the file.
+1. User uploads a DOCX or PDF file through the web interface.
+2. The Flask backend running on EC2 processes the file.
 3. The file is converted to the requested format.
-4. The converted file is available for download.
+4. The converted file is provided for download.
 
 ---
 
@@ -59,16 +55,16 @@ cloud-file-converter/
 
 ## Running the Project
 
-1. Launch an EC2 instance.
-2. Open port **5000** in the security group.
-3. Install dependencies.
-4. Run:
+1. Launch an AWS EC2 instance.
+2. Open inbound port **5000** in the security group.
+3. Install dependencies on the instance.
+4. Run the application:
 
 ```bash
 python3 app.py
 ```
 
-5. Access the app at:
+5. Access the app using:
 
 ```
 http://EC2-PUBLIC-IP:5000
@@ -78,29 +74,15 @@ http://EC2-PUBLIC-IP:5000
 
 ## AWS Configuration
 
-* **EC2:** Hosts the Flask application
+* **EC2:** Hosts the Flask backend application
 * **S3:** Stores uploaded and converted files
-* **IAM:** Manages permissions securely without hardcoded credentials
 
 ---
 
 ## Limitations
 
-* Complex PDFs may not fully preserve layout
-* OCR for scanned PDFs is not supported
-* Intended for academic demonstration purposes
+* Complex document layouts may not convert perfectly
+* Scanned PDFs require OCR (not implemented)
+* Designed for academic demonstration purposes
 
----
 
-## Course Information
-
-* **Course:** CpE-402 Cloud Computing
-* **University:** Kuwait University
-
----
-
-If you want, I can:
-
-* Make this even **shorter**
-* Rename sections to match your **professor’s preference**
-* Add a **one-line project description** at the top for GitHub preview
