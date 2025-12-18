@@ -1,0 +1,68 @@
+import json
+import os
+import boto3
+import uuid
+
+s3 = boto3.client("s3")
+
+def _resp(status, body_dict):
+    return {
+        "statusCode": status,
+        "headers": {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "content-type",
+            "Access-Control-Allow-Methods": "OPTIONS,POST",
+            "Content-Type": "application/json",
+        },
+        "body": json.dumps(body_dict),
+    }
+
+def lambda_handler(event, context):
+    # Preflight for browser CORS
+    if event.get("requestContext", {}).get("http", {}).get("method") == "OPTIONS" or event.get("httpMethod") == "OPTIONS":
+        return _resp(200, {"ok": True})
+
+    bucket = os.getenv("UPLOAD_BUCKET") or os.getenv("INPUT_BUCKET")
+    if not bucket:
+        return _resp(500, {"error": "Missing env var UPLOAD_BUCKET or INPUT_BUCKET"})
+
+    body_raw = event.get("body")
+    if not body_raw:
+        return _resp(400, {"error": "body"})
+
+    # body may come as string
+    try:
+        body = json.loads(body_raw) if isinstance(body_raw, str) else body_raw
+    except Exception:
+        return _resp(400, {"error": "Invalid JSON body"})
+
+    # accept both keys
+    file_name = body.get("fileName") or body.get("filename")
+    if not file_name:
+        return _resp(400, {"error": "fileName"})
+
+    # safe object key
+    # keep original extension if exists
+    ext = ""
+    if "." in file_name:
+        ext = "." + file_name.split(".")[-1].lower()
+
+    object_key = f"uploads/{uuid.uuid4().hex}{ext}"
+
+    try:
+        upload_url = s3.generate_presigned_url(
+            ClientMethod="put_object",
+            Params={
+                "Bucket": bucket,
+                "Key": object_key,
+            },
+            ExpiresIn=300  # 5 minutes
+        )
+    except Exception as e:
+        return _resp(500, {"error": str(e)})
+
+    return _resp(200, {
+        "uploadUrl": upload_url,
+        "key": object_key,
+        "bucket": bucket
+    })
