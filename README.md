@@ -19,7 +19,6 @@ The system follows a cloud-based client–server architecture:
 - Amazon EC2 hosts the Flask backend and handles document conversion.
 - Amazon S3 stores input and output files and triggers automated workflows.
 - AWS Lambda performs event-driven file conversion triggered by S3 uploads.
-- AWS IAM manages permissions securely without hardcoding credentials.
 
 ## Backend Implementation
 The backend is implemented using Python Flask and provides the following routes:
@@ -63,20 +62,10 @@ The screenshots directory contains sample outputs of the running application, in
 - DOCX → PDF conversion result
 - PDF → DOCX conversion result
 
-## Security Configuration
-IAM roles are used instead of AWS access keys.  
-S3 buckets are configured as private with no public access.  
-EC2 security group allows inbound traffic only on port 5000.  
-SSH access is restricted to the developer’s IP.  
-Presigned URLs are used for secure temporary file access.
-
 ## Limitations
 PDF to DOCX conversion may not fully preserve complex layouts.  
 Scanned PDFs require OCR, which is not implemented.  
 The system is intended for academic demonstration purposes.
 
-## AWS Deployment and Security Notes
-EC2 security groups restrict inbound traffic to port 5000 only.  
-IAM roles are used instead of embedding AWS credentials in code.  
-Access to S3 buckets is limited to required permissions.  
-The EC2 instance is stopped when not in use to prevent unnecessary costs.
+
+
