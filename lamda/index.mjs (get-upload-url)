@@ -1,0 +1,74 @@
+import json
+import os
+import boto3
+from urllib.parse import unquote_plus
+
+s3 = boto3.client("s3")
+
+INPUT_BUCKET = os.environ.get("INPUT_BUCKET")   # doc-input-conversion
+OUTPUT_BUCKET = os.environ.get("OUTPUT_BUCKET") # doc-output-conversion
+
+ALLOWED_EXT = {"pdf", "doc", "docx"}
+
+def _resp(status, body):
+    return {
+        "statusCode": status,
+        "headers": {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "*",
+            "Access-Control-Allow-Methods": "OPTIONS,POST"
+        },
+        "body": json.dumps(body)
+    }
+
+def lambda_handler(event, context):
+    if event.get("requestContext") and event.get("httpMethod") == "OPTIONS":
+        return _resp(200, {"ok": True})
+
+    try:
+        body = event.get("body") or "{}"
+        data = json.loads(body)
+
+        filename = data.get("filename", "")
+        if not filename or "." not in filename:
+            return _resp(400, {"error": "filename required (with extension)"})
+
+        ext = filename.rsplit(".", 1)[1].lower()
+        if ext not in ALLOWED_EXT:
+            return _resp(400, {"error": f"unsupported extension: {ext}"})
+
+        # keep file names simple; you can also prefix with uploads/
+        input_key = filename
+
+        base = filename.rsplit(".", 1)[0]
+        if ext in ["pdf"]:
+            out_ext = "docx"
+        else:
+            out_ext = "pdf"
+        output_key = f"{base}_converted.{out_ext}"
+
+        upload_url = s3.generate_presigned_url(
+            ClientMethod="put_object",
+            Params={
+                "Bucket": INPUT_BUCKET,
+                "Key": input_key,
+                "ContentType": "application/pdf" if ext == "pdf" else "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            },
+            ExpiresIn=600
+        )
+
+        download_url = s3.generate_presigned_url(
+            ClientMethod="get_object",
+            Params={"Bucket": OUTPUT_BUCKET, "Key": output_key},
+            ExpiresIn=3600
+        )
+
+        return _resp(200, {
+            "uploadUrl": upload_url,
+            "inputKey": input_key,
+            "outputKey": output_key,
+            "downloadUrl": download_url
+        })
+
+    except Exception as e:
+        return _resp(500, {"error": str(e)})
